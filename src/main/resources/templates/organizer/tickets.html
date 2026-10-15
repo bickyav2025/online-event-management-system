@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Manage Ticket Tiers')}">
+</head>
+<body>
+
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="dashboard-wrapper">
+    <div th:replace="~{fragments/sidebar :: organizer-sidebar('tickets')}"></div>
+
+    <main class="dashboard-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1">Ticket Inventory & Tiers</h2>
+                <p class="text-muted mb-0">Configure pricing levels, inventory quantities, and attendee purchase limits.</p>
+            </div>
+            <!-- Event Selector Dropdown -->
+            <div class="d-flex align-items-center gap-2">
+                <label class="small fw-bold text-muted mb-0 text-nowrap">Switch Event:</label>
+                <select class="form-select form-select-sm" onchange="location.href='/organizer/tickets?eventId=' + this.value">
+                    <option th:each="ev : ${events}" th:value="${ev.id}" th:text="${ev.title}"
+                            th:selected="${selectedEvent != null && selectedEvent.id == ev.id}"></option>
+                </select>
+            </div>
+        </div>
+
+        <div th:if="${selectedEvent != null}">
+            <!-- Event Banner Context Banner -->
+            <div class="custom-card p-3 mb-4 d-flex align-items-center justify-content-between bg-white">
+                <div class="d-flex align-items-center gap-3">
+                    <img th:src="${selectedEvent.bannerUrl}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">
+                    <div>
+                        <h6 class="fw-bold mb-0" th:text="${selectedEvent.title}">Event Title</h6>
+                        <small class="text-muted" th:text="${selectedEvent.venue + ' · ' + #temporals.format(selectedEvent.startTime, 'MMM dd, yyyy')}">Location</small>
+                    </div>
+                </div>
+                <!-- Modal Trigger Button -->
+                <button type="button" class="btn btn-primary-custom btn-sm" data-bs-toggle="modal" data-bs-target="#addTicketModal">
+                    <i class="bi bi-plus-lg me-1"></i> Add Ticket Tier
+                </button>
+            </div>
+
+            <!-- Existing Ticket Tiers List -->
+            <div class="row g-4 mb-4">
+                <div th:each="tier : ${ticketTypes}" class="col-md-6 col-lg-4">
+                    <div class="custom-card p-4 h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-primary-subtle text-primary" th:text="${tier.type}">TIER</span>
+                                <h4 class="fw-extrabold text-primary mb-0" th:text="${tier.price == 0 ? 'FREE' : '$' + tier.price}">$0.00</h4>
+                            </div>
+                            <h5 class="fw-bold mb-1" th:text="${tier.name}">Tier Name</h5>
+                            <p class="text-muted small mb-3" th:text="${tier.description}">Tier perks and descriptions</p>
+
+                            <!-- Inventory Status Progress Bar -->
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between small text-muted mb-1">
+                                    <span>Sold: <strong th:text="${tier.getSoldQuantity()}">0</strong></span>
+                                    <span>Remaining: <strong th:text="${tier.availableQuantity}">100</strong> / <span th:text="${tier.totalQuantity}">100</span></span>
+                                </div>
+                                <div class="progress" style="height: 6px;">
+                                    <div class="progress-bar bg-primary"
+                                         th:style="'width: ' + (${tier.totalQuantity > 0 ? (tier.getSoldQuantity() * 100 / tier.totalQuantity) : 0}) + '%'"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-3">
+                            <small class="text-muted" th:text="${'Max ' + tier.maxPerAttendee + '/order'}">Limit</small>
+                            <form th:action="@{/organizer/tickets/delete/{id}(id=${tier.id}, eventId=${selectedEvent.id})}" method="post"
+                                  onsubmit="return confirm('Delete this ticket tier?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" th:disabled="${tier.getSoldQuantity() > 0}">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:if="${ticketTypes.isEmpty()}" class="col-12 text-center py-5">
+                    <div class="custom-card p-5 mx-auto" style="max-width: 500px;">
+                        <i class="bi bi-tags fs-1 text-muted mb-3 d-block"></i>
+                        <h5>No ticket tiers configured</h5>
+                        <p class="text-muted small">Configure Free, General Admission, Early Bird, or VIP tickets to start selling registrations.</p>
+                        <button type="button" class="btn btn-primary-custom btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#addTicketModal">
+                            Add First Ticket Tier
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Ticket Modal -->
+            <div class="modal fade" id="addTicketModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content rounded-4 border-0 shadow">
+                        <div class="modal-header border-bottom">
+                            <h5 class="modal-title fw-bold">Create Ticket Tier</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <form th:action="@{/organizer/tickets/save}" th:object="${ticketDto}" method="post">
+                            <input type="hidden" name="eventId" th:value="${selectedEvent.id}">
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Ticket Name</label>
+                                    <input type="text" th:field="*{name}" class="form-control" placeholder="e.g. VIP All-Access Pass" required>
+                                </div>
+                                <div class="row g-2 mb-3">
+                                    <div class="col-6">
+                                        <label class="form-label small fw-bold">Tier Category</label>
+                                        <select th:field="*{type}" class="form-select">
+                                            <option value="GENERAL">General Admission</option>
+                                            <option value="EARLY_BIRD">Early Bird</option>
+                                            <option value="VIP">VIP</option>
+                                            <option value="FREE">Free Pass</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label small fw-bold">Price ($)</label>
+                                        <input type="number" step="0.01" th:field="*{price}" class="form-control" placeholder="0.00" required>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Description / Perks</label>
+                                    <textarea th:field="*{description}" class="form-control" rows="2" placeholder="Included benefits, lanyard, lounge access..."></textarea>
+                                </div>
+                                <div class="row g-2 mb-3">
+                                    <div class="col-6">
+                                        <label class="form-label small fw-bold">Total Available Inventory</label>
+                                        <input type="number" th:field="*{totalQuantity}" class="form-control" placeholder="100" min="1" required>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label small fw-bold">Max Tickets Per Order</label>
+                                        <input type="number" th:field="*{maxPerAttendee}" class="form-control" value="5" min="1" max="10" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer border-top">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary-custom">Save Ticket Tier</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:unless="${selectedEvent != null}" class="text-center py-5">
+            <h5>No events found. Please create an event first.</h5>
+            <a th:href="@{/organizer/events/new}" class="btn btn-primary-custom mt-2">Create Event</a>
+        </div>
+    </main>
+</div>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Explore Events')}">
+</head>
+<body>
+
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="container py-5">
+    <!-- Header -->
+    <div class="mb-4">
+        <h1 class="fw-bold">Explore All Events</h1>
+        <p class="text-muted">Discover upcoming conferences, concerts, seminars, and networking sessions.</p>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="custom-card p-4 mb-5">
+        <form th:action="@{/explore}" method="get" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-muted">Keyword</label>
+                <input type="text" name="keyword" th:value="${keyword}" class="form-control" placeholder="Search by title or topic...">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-muted">Category</label>
+                <select name="category" class="form-select">
+                    <option value="">All Categories</option>
+                    <option th:each="cat : ${categories}"
+                            th:value="${cat.slug}"
+                            th:text="${cat.name}"
+                            th:selected="${selectedCategory == cat.slug}">Category</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold text-muted">City</label>
+                <input type="text" name="city" th:value="${city}" class="form-control" placeholder="e.g. New York">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold text-muted">Date From</label>
+                <input type="date" name="startDate" th:value="${startDate}" class="form-control">
+            </div>
+            <div class="col-md-2 d-grid align-self-end">
+                <button type="submit" class="btn btn-primary-custom justify-content-center">
+                    <i class="bi bi-funnel me-1"></i> Apply
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Event Results Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <span class="text-muted" th:text="${totalElements + ' events found'}">0 events found</span>
+        <div th:if="${selectedCategory != null || keyword != null || city != null}">
+            <a th:href="@{/explore}" class="btn btn-sm btn-outline-secondary">Clear Filters</a>
+        </div>
+    </div>
+
+    <!-- Events Grid -->
+    <div class="row g-4 mb-5">
+        <div th:each="event : ${events}" class="col-md-6 col-lg-4">
+            <div class="custom-card h-100 d-flex flex-column">
+                <div class="event-card-img-wrapper">
+                    <img th:src="${event.bannerUrl}" th:alt="${event.title}">
+                    <span class="event-category-badge" th:text="${event.category.name}">Category</span>
+                    <span class="event-price-badge" th:text="${event.isOnline ? 'Online' : event.city}">Location</span>
+                </div>
+                <div class="p-4 d-flex flex-column flex-grow-1">
+                    <div class="d-flex align-items-center gap-2 text-muted small mb-2">
+                        <i class="bi bi-calendar3 text-primary"></i>
+                        <span th:text="${#temporals.format(event.startTime, 'MMM dd, yyyy · hh:mm a')}">Date</span>
+                    </div>
+                    <h5 class="fw-bold mb-2">
+                        <a th:href="@{/events/{slug}(slug=${event.slug})}" class="text-decoration-none text-dark" th:text="${event.title}">Event Title</a>
+                    </h5>
+                    <p class="text-muted small flex-grow-1" th:text="${event.shortDescription != null ? #strings.abbreviate(event.shortDescription, 110) : ''}">Short description</p>
+
+                    <div class="d-flex align-items-center justify-content-between pt-3 border-top mt-3">
+                        <div class="d-flex align-items-center gap-1 text-muted small">
+                            <i class="bi bi-geo-alt"></i>
+                            <span th:text="${event.venue}">Venue</span>
+                        </div>
+                        <a th:href="@{/events/{slug}(slug=${event.slug})}" class="btn btn-sm btn-primary-custom">
+                            View Event
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div th:if="${events.isEmpty()}" class="col-12 text-center py-5">
+            <div class="custom-card p-5 mx-auto" style="max-width: 500px;">
+                <i class="bi bi-search fs-1 text-muted mb-3 d-block"></i>
+                <h4 class="fw-bold">No Events Found</h4>
+                <p class="text-muted">Try adjusting your keyword, category, or city filters to find what you're looking for.</p>
+                <a th:href="@{/explore}" class="btn btn-primary-custom mt-2">Reset All Filters</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <nav th:if="${totalPages > 1}" class="d-flex justify-content-center">
+        <ul class="pagination">
+            <li class="page-item" th:classappend="${currentPage == 0 ? 'disabled' : ''}">
+                <a class="page-link" th:href="@{/explore(page=${currentPage - 1}, keyword=${keyword}, category=${selectedCategory}, city=${city})}">Previous</a>
+            </li>
+            <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}" class="page-item" th:classappend="${currentPage == i ? 'active' : ''}">
+                <a class="page-link" th:href="@{/explore(page=${i}, keyword=${keyword}, category=${selectedCategory}, city=${city})}" th:text="${i + 1}">1</a>
+            </li>
+            <li class="page-item" th:classappend="${currentPage == totalPages - 1 ? 'disabled' : ''}">
+                <a class="page-link" th:href="@{/explore(page=${currentPage + 1}, keyword=${keyword}, category=${selectedCategory}, city=${city})}">Next</a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

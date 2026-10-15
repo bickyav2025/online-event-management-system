@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Door Check-in Scanner')}">
+</head>
+<body>
+
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="dashboard-wrapper">
+    <div th:replace="~{fragments/sidebar :: organizer-sidebar('checkin')}"></div>
+
+    <main class="dashboard-content">
+        <div class="mb-4">
+            <h2 class="fw-bold mb-1">Door Check-in & QR Verification</h2>
+            <p class="text-muted mb-0">Validate attendee entrance codes, prevent duplicate entry, and monitor real-time check-in status.</p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="custom-card p-4 p-md-5 text-center">
+                    <div class="stat-icon indigo mx-auto mb-3" style="width: 64px; height: 64px; font-size: 2rem;">
+                        <i class="bi bi-qr-code-scan"></i>
+                    </div>
+                    <h4 class="fw-bold mb-2">Scan or Enter Ticket Code</h4>
+                    <p class="text-muted small mb-4">Input the alphanumeric ticket code (e.g., TKT-XXXXXXXXXX) or use a barcode scanner.</p>
+
+                    <form th:action="@{/organizer/checkin/verify}" method="post">
+                        <div class="mb-3">
+                            <input type="text" name="ticketCode" class="form-control form-control-lg text-center font-monospace"
+                                   placeholder="TKT-ABC12345" required autofocus>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary-custom justify-content-center py-2 fs-6">
+                                <i class="bi bi-check-circle me-1"></i> Verify & Check In Attendee
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="alert alert-light border mt-4 text-start small">
+                        <span class="fw-bold d-block mb-1"><i class="bi bi-shield-check text-success me-1"></i> Anti-Fraud Protection:</span>
+                        Tickets can only be checked in once. Duplicate attempts or invalid codes will immediately be rejected by the server.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

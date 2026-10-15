@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Booking Confirmed')}">
+</head>
+<body class="bg-light">
+
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Confirmation Card -->
+            <div class="custom-card p-4 p-md-5 text-center mb-4">
+                <div class="stat-icon emerald mx-auto mb-3" style="width: 72px; height: 72px; font-size: 2.5rem;">
+                    <i class="bi bi-check2-circle"></i>
+                </div>
+                <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-bold mb-2">Registration Confirmed</span>
+                <h2 class="fw-bold mb-1">You're Going!</h2>
+                <p class="text-muted mb-4">Your registration has been successfully processed and verified.</p>
+
+                <!-- Reference Code Box -->
+                <div class="p-3 bg-light rounded-3 d-inline-block border mb-4">
+                    <span class="text-muted small d-block">Booking Reference</span>
+                    <h4 class="fw-mono fw-extrabold text-primary mb-0" th:text="${registration.registrationCode}">REG-12345678</h4>
+                </div>
+
+                <div class="text-start p-4 border rounded-3 bg-white mb-4">
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <span class="text-muted small d-block">Event Name</span>
+                            <strong th:text="${event.title}">Event Title</strong>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="text-muted small d-block">Date & Time</span>
+                            <strong th:text="${#temporals.format(event.startTime, 'MMM dd, yyyy · hh:mm a')}">Date</strong>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="text-muted small d-block">Venue / Location</span>
+                            <span th:text="${event.venue + ', ' + event.city}">Moscone Center</span>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="text-muted small d-block">Total Paid</span>
+                            <span class="text-success fw-bold" th:text="${registration.totalAmount == 0 ? 'FREE' : '$' + registration.totalAmount}">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Generated Tickets -->
+                <h5 class="fw-bold text-start mb-3">Issued Digital Tickets (<span th:text="${tickets.size()}">1</span>)</h5>
+                <div class="row g-3 mb-4">
+                    <div th:each="tkt : ${tickets}" class="col-md-6 text-start">
+                        <div class="p-3 border rounded-3 bg-light d-flex align-items-center gap-3">
+                            <img th:if="${tkt.qrCodePath != null}" th:src="${tkt.qrCodePath}" style="width: 70px; height: 70px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                            <div>
+                                <small class="text-muted d-block" th:text="${tkt.ticketCode}">TKT-CODE</small>
+                                <strong class="d-block" th:text="${tkt.attendeeName}">Attendee Name</strong>
+                                <span class="badge bg-primary-subtle text-primary" th:text="${tkt.ticketTypeName}">General Pass</span>
+                                <div class="mt-2">
+                                    <a th:href="@{/attendee/tickets/{code}(code=${tkt.ticketCode})}" class="btn btn-sm btn-outline-custom">
+                                        <i class="bi bi-printer me-1"></i> View Ticket
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-center gap-3">
+                    <a th:href="@{/attendee/registrations}" class="btn btn-primary-custom">
+                        <i class="bi bi-ticket-perforated me-1"></i> View All My Registrations
+                    </a>
+                    <a th:href="@{/}" class="btn btn-outline-custom">
+                        Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

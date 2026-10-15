@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Notifications')}">
+</head>
+<body>
+
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="dashboard-wrapper">
+    <div th:replace="~{fragments/sidebar :: attendee-sidebar('notifications')}"></div>
+
+    <main class="dashboard-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1">Notifications & Announcements</h2>
+                <p class="text-muted mb-0">Stay informed about your registrations, venue changes, and announcements.</p>
+            </div>
+            <form th:action="@{/attendee/notifications/read-all}" method="post">
+                <button type="submit" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-check2-all me-1"></i> Mark All as Read
+                </button>
+            </form>
+        </div>
+
+        <div class="custom-card p-4">
+            <div class="d-flex flex-column gap-3">
+                <div th:each="n : ${notifications}" class="p-3 border rounded-3 d-flex justify-content-between align-items-start gap-3"
+                     th:classappend="${!n.read ? 'bg-primary-subtle border-primary-subtle' : 'bg-white'}">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="badge" th:classappend="${n.type.name() == 'ANNOUNCEMENT' ? 'bg-warning text-dark' : 'bg-primary'}"
+                                  th:text="${n.type}">TYPE</span>
+                            <strong th:text="${n.title}">Notification Title</strong>
+                        </div>
+                        <p class="text-muted small mb-2" th:text="${n.message}">Notification content message</p>
+                        <small class="text-muted" th:text="${#temporals.format(n.createdAt, 'MMM dd, yyyy HH:mm')}">Date</small>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <a th:if="${n.targetUrl != null}" th:href="${n.targetUrl}" class="btn btn-sm btn-outline-primary">View</a>
+                        <form th:if="${!n.read}" th:action="@{/attendee/notifications/{id}/read(id=${n.id})}" method="post">
+                            <button type="submit" class="btn btn-sm btn-light border" title="Mark Read"><i class="bi bi-check"></i></button>
+                        </form>
+                    </div>
+                </div>
+
+                <div th:if="${notifications.isEmpty()}" class="text-center py-5 text-muted">
+                    <i class="bi bi-bell-slash fs-1 text-muted d-block mb-2"></i>
+                    No notifications yet.
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <nav th:if="${totalPages > 1}" class="d-flex justify-content-center mt-4">
+                <ul class="pagination">
+                    <li class="page-item" th:classappend="${currentPage == 0 ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/attendee/notifications(page=${currentPage - 1})}">Previous</a>
+                    </li>
+                    <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}" class="page-item" th:classappend="${currentPage == i ? 'active' : ''}">
+                        <a class="page-link" th:href="@{/attendee/notifications(page=${i})}" th:text="${i + 1}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${currentPage == totalPages - 1 ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/attendee/notifications(page=${currentPage + 1})}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </main>
+</div>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

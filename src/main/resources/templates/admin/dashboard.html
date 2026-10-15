@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Admin Dashboard')}">
+</head>
+<body>
+
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="dashboard-wrapper">
+    <!-- Admin Sidebar -->
+    <div th:replace="~{fragments/sidebar :: admin-sidebar('dashboard')}"></div>
+
+    <!-- Dashboard Content -->
+    <main class="dashboard-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1">Platform Operations Dashboard</h2>
+                <p class="text-muted mb-0">Real-time system telemetry, event pipeline, and financial metrics.</p>
+            </div>
+            <a th:href="@{/admin/events/pending}" class="btn btn-primary-custom btn-sm">
+                <i class="bi bi-clock-history me-1"></i> Review Pending Approvals
+            </a>
+        </div>
+
+        <!-- Metric Stat Cards -->
+        <div class="row g-4 mb-4">
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div>
+                        <span class="text-muted small fw-bold text-uppercase">Total Users</span>
+                        <h3 class="fw-bold mt-1 mb-0" th:text="${totalUsers}">0</h3>
+                    </div>
+                    <div class="stat-icon indigo"><i class="bi bi-people-fill"></i></div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div>
+                        <span class="text-muted small fw-bold text-uppercase">Total Events</span>
+                        <h3 class="fw-bold mt-1 mb-0" th:text="${totalEvents}">0</h3>
+                    </div>
+                    <div class="stat-icon blue"><i class="bi bi-calendar-event-fill"></i></div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div>
+                        <span class="text-muted small fw-bold text-uppercase">Pending Review</span>
+                        <h3 class="fw-bold mt-1 mb-0 text-warning" th:text="${pendingApprovals}">0</h3>
+                    </div>
+                    <div class="stat-icon amber"><i class="bi bi-hourglass-split"></i></div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div>
+                        <span class="text-muted small fw-bold text-uppercase">Total Revenue</span>
+                        <h3 class="fw-bold mt-1 mb-0 text-success" th:text="${'$' + (totalRevenue != null ? totalRevenue : 0)}">$0.00</h3>
+                    </div>
+                    <div class="stat-icon emerald"><i class="bi bi-currency-dollar"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Analytics Charts (Chart.js) -->
+        <div class="row g-4 mb-4">
+            <div class="col-lg-8">
+                <div class="custom-card p-4">
+                    <h5 class="fw-bold mb-3">Registration & Revenue Dynamics</h5>
+                    <canvas id="registrationTrendsChart" height="120"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="custom-card p-4">
+                    <h5 class="fw-bold mb-3">Event Categories</h5>
+                    <canvas id="categoryDistributionChart" height="240"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Audit Log Snapshot -->
+        <div class="custom-card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">Recent System Audit Actions</h5>
+                <a th:href="@{/admin/activity}" class="text-primary small text-decoration-none fw-bold">View Full Audit Log &rarr;</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Actor</th>
+                            <th>Action</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="log : ${recentLogs}">
+                            <td class="text-muted small" th:text="${#temporals.format(log.createdAt, 'MMM dd, HH:mm:ss')}">Time</td>
+                            <td><strong th:text="${log.actorEmail != null ? log.actorEmail : 'System'}">Actor</strong></td>
+                            <td><span class="badge bg-primary-subtle text-primary" th:text="${log.action}">Action</span></td>
+                            <td class="text-muted small" th:text="${log.details}">Details</td>
+                        </tr>
+                        <tr th:if="${recentLogs.isEmpty()}">
+                            <td colspan="4" class="text-center text-muted py-3">No activity logs recorded yet.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+    const trendData = /*[[${registrationTrends}]]*/ [];
+    const catData = /*[[${eventsByCategory}]]*/ [];
+    window.addEventListener('DOMContentLoaded', () => {
+        initAdminCharts(trendData, catData);
+    });
+/*]]>*/
+</script>
+
+</body>
+</html>

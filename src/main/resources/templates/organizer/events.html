@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Manage Events')}">
+</head>
+<body>
+
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="dashboard-wrapper">
+    <div th:replace="~{fragments/sidebar :: organizer-sidebar('events')}"></div>
+
+    <main class="dashboard-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1">My Events</h2>
+                <p class="text-muted mb-0">Create, monitor, and submit events for publication.</p>
+            </div>
+            <a th:href="@{/organizer/events/new}" class="btn btn-primary-custom">
+                <i class="bi bi-plus-lg me-1"></i> New Event
+            </a>
+        </div>
+
+        <div class="custom-card p-4">
+            <div class="table-responsive">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>Banner & Title</th>
+                            <th>Category</th>
+                            <th>Schedule</th>
+                            <th>Venue / Online</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="ev : ${events}">
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <img th:src="${ev.bannerUrl}" style="width: 54px; height: 54px; object-fit: cover; border-radius: 8px;">
+                                    <div>
+                                        <strong class="d-block" th:text="${ev.title}">Title</strong>
+                                        <small class="text-muted" th:text="${ev.maxCapacity + ' seats'}">Capacity</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge bg-primary-subtle text-primary" th:text="${ev.category.name}">Category</span></td>
+                            <td>
+                                <small class="d-block fw-semibold" th:text="${#temporals.format(ev.startTime, 'yyyy-MM-dd')}">Date</small>
+                                <small class="text-muted" th:text="${#temporals.format(ev.startTime, 'HH:mm')}">Time</small>
+                            </td>
+                            <td>
+                                <span th:if="${ev.isOnline}" class="badge bg-info-subtle text-info"><i class="bi bi-camera-video me-1"></i> Online</span>
+                                <span th:unless="${ev.isOnline}" class="small text-muted" th:text="${ev.venue + ', ' + ev.city}">Venue</span>
+                            </td>
+                            <td>
+                                <span class="badge"
+                                      th:classappend="${ev.status.name() == 'PUBLISHED' ? 'bg-success' : (ev.status.name() == 'APPROVED' ? 'bg-info text-dark' : (ev.status.name() == 'PENDING_APPROVAL' ? 'bg-warning text-dark' : (ev.status.name() == 'REJECTED' ? 'bg-danger' : 'bg-secondary')))}"
+                                      th:text="${ev.status}">STATUS</span>
+                                <div th:if="${ev.status.name() == 'REJECTED' && ev.rejectionReason != null}" class="text-danger small mt-1" style="max-width: 180px;">
+                                    <i class="bi bi-info-circle"></i> <span th:text="${ev.rejectionReason}">Reason</span>
+                                </div>
+                            </td>
+                            <td class="text-end">
+                                <div class="d-flex justify-content-end gap-1 flex-wrap">
+                                    <!-- Submit for Approval (Draft or Rejected) -->
+                                    <form th:if="${ev.status.name() == 'DRAFT' || ev.status.name() == 'REJECTED'}"
+                                          th:action="@{/organizer/events/submit/{id}(id=${ev.id})}" method="post">
+                                        <button type="submit" class="btn btn-sm btn-outline-warning" title="Submit to Admin for Approval">
+                                            <i class="bi bi-send me-1"></i> Submit
+                                        </button>
+                                    </form>
+
+                                    <!-- Publish (Approved or Draft in self-publish mode) -->
+                                    <form th:if="${ev.status.name() == 'APPROVED'}"
+                                          th:action="@{/organizer/events/publish/{id}(id=${ev.id})}" method="post">
+                                        <button type="submit" class="btn btn-sm btn-success" title="Publish Event">
+                                            <i class="bi bi-broadcast me-1"></i> Publish
+                                        </button>
+                                    </form>
+
+                                    <!-- Public View Link if Published -->
+                                    <a th:if="${ev.status.name() == 'PUBLISHED'}"
+                                       th:href="@{/events/{slug}(slug=${ev.slug})}" target="_blank"
+                                       class="btn btn-sm btn-outline-info" title="View Public Page">
+                                        <i class="bi bi-box-arrow-up-right"></i>
+                                    </a>
+
+                                    <!-- Ticket Config -->
+                                    <a th:href="@{/organizer/tickets?eventId={id}(id=${ev.id})}"
+                                       class="btn btn-sm btn-outline-primary" title="Configure Tickets">
+                                        <i class="bi bi-tags"></i>
+                                    </a>
+
+                                    <!-- Edit -->
+                                    <a th:href="@{/organizer/events/edit/{id}(id=${ev.id})}"
+                                       class="btn btn-sm btn-outline-secondary" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+
+                                    <!-- Delete -->
+                                    <form th:action="@{/organizer/events/delete/{id}(id=${ev.id})}" method="post"
+                                          onsubmit="return confirm('Are you sure you want to delete this event?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${events.isEmpty()}">
+                            <td colspan="6" class="text-center py-5">
+                                <i class="bi bi-calendar-plus fs-1 text-muted d-block mb-2"></i>
+                                <h5>No events created yet</h5>
+                                <p class="text-muted">Start by launching your first conference or workshop!</p>
+                                <a th:href="@{/organizer/events/new}" class="btn btn-primary-custom mt-2">Create Your First Event</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <nav th:if="${totalPages > 1}" class="d-flex justify-content-center mt-4">
+                <ul class="pagination">
+                    <li class="page-item" th:classappend="${currentPage == 0 ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/organizer/events(page=${currentPage - 1})}">Previous</a>
+                    </li>
+                    <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}" class="page-item" th:classappend="${currentPage == i ? 'active' : ''}">
+                        <a class="page-link" th:href="@{/organizer/events(page=${i})}" th:text="${i + 1}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${currentPage == totalPages - 1 ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/organizer/events(page=${currentPage + 1})}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </main>
+</div>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

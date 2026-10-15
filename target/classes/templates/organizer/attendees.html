@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Manage Attendees')}">
+</head>
+<body>
+
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="dashboard-wrapper">
+    <div th:replace="~{fragments/sidebar :: organizer-sidebar('attendees')}"></div>
+
+    <main class="dashboard-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1">Attendee Management</h2>
+                <p class="text-muted mb-0">View registered participants, ticket types, and download CSV roster exports.</p>
+            </div>
+            <!-- CSV Export Button -->
+            <a th:href="@{/organizer/attendees/export(eventId=${selectedEventId})}" class="btn btn-outline-success">
+                <i class="bi bi-file-earmark-spreadsheet me-1"></i> Export Attendee CSV
+            </a>
+        </div>
+
+        <!-- Filter Card -->
+        <div class="custom-card p-4 mb-4">
+            <form th:action="@{/organizer/attendees}" method="get" class="row g-3">
+                <div class="col-md-5">
+                    <label class="form-label small fw-bold text-muted">Search Attendee or Registration Code</label>
+                    <input type="text" name="search" th:value="${search}" class="form-control" placeholder="Search by name, email, code...">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold text-muted">Filter by Event</label>
+                    <select name="eventId" class="form-select">
+                        <option value="">All My Events</option>
+                        <option th:each="ev : ${events}" th:value="${ev.id}" th:text="${ev.title}"
+                                th:selected="${selectedEventId == ev.id}"></option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-grid align-self-end">
+                    <button type="submit" class="btn btn-primary-custom justify-content-center">
+                        <i class="bi bi-funnel me-1"></i> Filter Attendees
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Attendees Table Card -->
+        <div class="custom-card p-4">
+            <div class="table-responsive">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>Registration Code</th>
+                            <th>Attendee Name & Email</th>
+                            <th>Event</th>
+                            <th>Ticket Tier</th>
+                            <th>Qty</th>
+                            <th>Paid Amount</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="reg : ${attendees}">
+                            <td><strong class="font-monospace text-primary" th:text="${reg.registrationCode}">REG-12345</strong></td>
+                            <td>
+                                <strong class="d-block" th:text="${reg.attendee.fullName}">Name</strong>
+                                <small class="text-muted" th:text="${reg.attendee.email}">email@example.com</small>
+                            </td>
+                            <td><small class="fw-semibold" th:text="${reg.event.title}">Event Title</small></td>
+                            <td><span class="badge bg-primary-subtle text-primary" th:text="${reg.ticketType.name}">Tier</span></td>
+                            <td><span class="badge bg-light text-dark border" th:text="${reg.quantity}">1</span></td>
+                            <td><strong class="text-success" th:text="${reg.totalAmount == 0 ? 'FREE' : '$' + reg.totalAmount}">$0.00</strong></td>
+                            <td class="text-muted small" th:text="${#temporals.format(reg.createdAt, 'yyyy-MM-dd HH:mm')}">Date</td>
+                            <td><span class="badge bg-success-subtle text-success" th:text="${reg.status}">CONFIRMED</span></td>
+                        </tr>
+                        <tr th:if="${attendees.isEmpty()}">
+                            <td colspan="8" class="text-center py-5 text-muted">
+                                <i class="bi bi-people fs-1 text-muted d-block mb-2"></i>
+                                No attendees match the selected search criteria.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <nav th:if="${totalPages > 1}" class="d-flex justify-content-center mt-4">
+                <ul class="pagination">
+                    <li class="page-item" th:classappend="${currentPage == 0 ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/organizer/attendees(page=${currentPage - 1}, eventId=${selectedEventId}, search=${search})}">Previous</a>
+                    </li>
+                    <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}" class="page-item" th:classappend="${currentPage == i ? 'active' : ''}">
+                        <a class="page-link" th:href="@{/organizer/attendees(page=${i}, eventId=${selectedEventId}, search=${search})}" th:text="${i + 1}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${currentPage == totalPages - 1 ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/organizer/attendees(page=${currentPage + 1}, eventId=${selectedEventId}, search=${search})}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </main>
+</div>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

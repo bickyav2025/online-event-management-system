@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Activity Audit Log')}">
+</head>
+<body>
+
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="dashboard-wrapper">
+    <div th:replace="~{fragments/sidebar :: admin-sidebar('activity')}"></div>
+
+    <main class="dashboard-content">
+        <div class="mb-4">
+            <h2 class="fw-bold mb-1">Activity Audit Log</h2>
+            <p class="text-muted mb-0">Traceable historical audit of administrative decisions, bookings, and logins.</p>
+        </div>
+
+        <div class="custom-card p-4 mb-4">
+            <form th:action="@{/admin/activity}" method="get" class="row g-2">
+                <div class="col-md-10">
+                    <input type="text" name="query" th:value="${query}" class="form-control" placeholder="Search logs by action, email, or keywords...">
+                </div>
+                <div class="col-md-2 d-grid">
+                    <button type="submit" class="btn btn-primary-custom justify-content-center">Search</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="custom-card p-4">
+            <div class="table-responsive">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Actor</th>
+                            <th>Action Type</th>
+                            <th>Action Details</th>
+                            <th>IP Address</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="log : ${logs}">
+                            <td class="text-muted small" th:text="${#temporals.format(log.createdAt, 'yyyy-MM-dd HH:mm:ss')}">Timestamp</td>
+                            <td>
+                                <strong th:text="${log.actorEmail != null ? log.actorEmail : 'System'}">Actor</strong>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary-subtle text-primary" th:text="${log.action}">ACTION</span>
+                            </td>
+                            <td class="small" th:text="${log.details}">Details</td>
+                            <td class="text-muted small" th:text="${log.ipAddress}">IP</td>
+                        </tr>
+                        <tr th:if="${logs.isEmpty()}">
+                            <td colspan="5" class="text-center py-4 text-muted">No activity logs found.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <nav th:if="${totalPages > 1}" class="d-flex justify-content-center mt-4">
+                <ul class="pagination">
+                    <li class="page-item" th:classappend="${currentPage == 0 ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/admin/activity(page=${currentPage - 1}, query=${query})}">Previous</a>
+                    </li>
+                    <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}" class="page-item" th:classappend="${currentPage == i ? 'active' : ''}">
+                        <a class="page-link" th:href="@{/admin/activity(page=${i}, query=${query})}" th:text="${i + 1}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${currentPage == totalPages - 1 ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/admin/activity(page=${currentPage + 1}, query=${query})}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </main>
+</div>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

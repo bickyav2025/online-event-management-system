@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('My Registrations')}">
+</head>
+<body>
+
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="dashboard-wrapper">
+    <div th:replace="~{fragments/sidebar :: attendee-sidebar('registrations')}"></div>
+
+    <main class="dashboard-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1">My Registered Events</h2>
+                <p class="text-muted mb-0">View all your registered tickets, QR passes, and payment receipts.</p>
+            </div>
+            <a th:href="@{/explore}" class="btn btn-outline-custom">
+                <i class="bi bi-search me-1"></i> Explore More Events
+            </a>
+        </div>
+
+        <div class="custom-card p-4">
+            <div class="table-responsive">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>Booking Ref</th>
+                            <th>Event Details</th>
+                            <th>Ticket Tier</th>
+                            <th>Qty</th>
+                            <th>Total Paid</th>
+                            <th>Status</th>
+                            <th>Booked Date</th>
+                            <th class="text-end">Pass Access</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="reg : ${registrations}">
+                            <td><strong class="font-monospace text-primary" th:text="${reg.registrationCode}">REG-12345</strong></td>
+                            <td>
+                                <strong class="d-block" th:text="${reg.event.title}">Event Title</strong>
+                                <small class="text-muted" th:text="${#temporals.format(reg.event.startTime, 'MMM dd, yyyy · hh:mm a')}">Date</small>
+                            </td>
+                            <td><span class="badge bg-primary-subtle text-primary" th:text="${reg.ticketType.name}">Tier</span></td>
+                            <td><span class="badge bg-light text-dark border" th:text="${reg.quantity}">1</span></td>
+                            <td><strong class="text-success" th:text="${reg.totalAmount == 0 ? 'FREE' : '$' + reg.totalAmount}">$0.00</strong></td>
+                            <td><span class="badge bg-success-subtle text-success" th:text="${reg.status}">CONFIRMED</span></td>
+                            <td class="text-muted small" th:text="${#temporals.format(reg.createdAt, 'yyyy-MM-dd')}">Date</td>
+                            <td class="text-end">
+                                <a th:href="@{/checkout/success/{code}(code=${reg.registrationCode})}" class="btn btn-sm btn-primary-custom">
+                                    <i class="bi bi-qr-code me-1"></i> View Tickets
+                                </a>
+                            </td>
+                        </tr>
+                        <tr th:if="${registrations.isEmpty()}">
+                            <td colspan="8" class="text-center py-5">
+                                <i class="bi bi-ticket-perforated fs-1 text-muted d-block mb-2"></i>
+                                <h5>No Bookings Yet</h5>
+                                <p class="text-muted">You have not registered for any upcoming events.</p>
+                                <a th:href="@{/explore}" class="btn btn-primary-custom mt-2">Explore Upcoming Events</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <nav th:if="${totalPages > 1}" class="d-flex justify-content-center mt-4">
+                <ul class="pagination">
+                    <li class="page-item" th:classappend="${currentPage == 0 ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/attendee/registrations(page=${currentPage - 1})}">Previous</a>
+                    </li>
+                    <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}" class="page-item" th:classappend="${currentPage == i ? 'active' : ''}">
+                        <a class="page-link" th:href="@{/attendee/registrations(page=${i})}" th:text="${i + 1}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${currentPage == totalPages - 1 ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/attendee/registrations(page=${currentPage + 1})}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </main>
+</div>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

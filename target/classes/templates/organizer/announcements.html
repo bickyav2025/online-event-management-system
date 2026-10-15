@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Broadcast Announcements')}">
+</head>
+<body>
+
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="dashboard-wrapper">
+    <div th:replace="~{fragments/sidebar :: organizer-sidebar('announcements')}"></div>
+
+    <main class="dashboard-content">
+        <div class="mb-4">
+            <h2 class="fw-bold mb-1">Attendee Announcements</h2>
+            <p class="text-muted mb-0">Broadcast key updates, parking logistics, or schedule changes directly to your registered attendees.</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Left: Compose Announcement Form -->
+            <div class="col-lg-5">
+                <div class="custom-card p-4">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-pencil-square text-primary me-2"></i> Compose Update</h5>
+
+                    <form th:action="@{/organizer/announcements}" th:object="${announcementDto}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Target Event</label>
+                            <select th:field="*{eventId}" class="form-select" required>
+                                <option value="">-- Choose an Event --</option>
+                                <option th:each="ev : ${events}" th:value="${ev.id}" th:text="${ev.title}"></option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Announcement Title</label>
+                            <input type="text" th:field="*{title}" class="form-control" placeholder="e.g. Venue Doors Open at 8:30 AM" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Message Content</label>
+                            <textarea th:field="*{message}" class="form-control" rows="5"
+                                      placeholder="Write your announcement details, parking reminders, or link..." required></textarea>
+                        </div>
+
+                        <div class="alert alert-light border small text-muted">
+                            <i class="bi bi-info-circle me-1 text-primary"></i> Notifications are dispatched to attendees' dashboards and notification centers.
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary-custom justify-content-center py-2">
+                                <i class="bi bi-send-fill me-1"></i> Send Announcement
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Right: Broadcast History -->
+            <div class="col-lg-7">
+                <div class="custom-card p-4">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-clock-history text-primary me-2"></i> Broadcast History</h5>
+
+                    <div class="d-flex flex-column gap-3">
+                        <div th:each="ann : ${announcements}" class="p-3 border rounded-3 bg-white">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="badge bg-primary-subtle text-primary" th:text="${ann.event.title}">Event Title</span>
+                                <small class="text-muted" th:text="${#temporals.format(ann.createdAt, 'MMM dd, yyyy HH:mm')}">Date</small>
+                            </div>
+                            <h6 class="fw-bold mb-1" th:text="${ann.title}">Title</h6>
+                            <p class="text-muted small mb-0" th:text="${ann.message}">Message content</p>
+                            <div class="mt-2 text-end">
+                                <span class="badge bg-success-subtle text-success"><i class="bi bi-check2-all me-1"></i> Sent</span>
+                            </div>
+                        </div>
+
+                        <div th:if="${announcements.isEmpty()}" class="text-center py-5 text-muted">
+                            <i class="bi bi-megaphone fs-1 text-muted d-block mb-2"></i>
+                            No announcements sent yet.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${isEdit ? 'Edit Event' : 'Create Event'})}">
+</head>
+<body>
+
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="dashboard-wrapper">
+    <div th:replace="~{fragments/sidebar :: organizer-sidebar('events')}"></div>
+
+    <main class="dashboard-content">
+        <div class="mb-4">
+            <h2 class="fw-bold mb-1" th:text="${isEdit ? 'Edit Event Details' : 'Create New Event'}">Create Event</h2>
+            <p class="text-muted mb-0">Fill in the event logistics, dates, venue information, and capacity limits.</p>
+        </div>
+
+        <div class="custom-card p-4 p-md-5" style="max-width: 900px;">
+            <form th:action="${isEdit ? '/organizer/events/edit/' + eventDto.id : '/organizer/events/new'}"
+                  th:object="${eventDto}" method="post">
+
+                <div class="mb-4">
+                    <label class="form-label small fw-bold">Event Title</label>
+                    <input type="text" th:field="*{title}" class="form-control form-control-lg"
+                           th:classappend="${#fields.hasErrors('title')} ? 'is-invalid' : ''"
+                           placeholder="e.g. Annual Global AI & Technology Summit" required>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Category</label>
+                        <select th:field="*{categoryId}" class="form-select" required>
+                            <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Banner Image URL</label>
+                        <input type="url" th:field="*{bannerUrl}" class="form-control"
+                               placeholder="https://images.unsplash.com/photo-...">
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label small fw-bold">Short Summary (Shown on Cards)</label>
+                    <textarea th:field="*{shortDescription}" class="form-control" rows="2"
+                              placeholder="Brief 1-2 sentence teaser about the event experience..."></textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label small fw-bold">Full Detailed Description</label>
+                    <textarea th:field="*{fullDescription}" class="form-control" rows="5"
+                              placeholder="Complete agenda, speaker list, expectations, and benefits..."></textarea>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Start Date & Time</label>
+                        <input type="datetime-local" th:field="*{startTime}" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">End Date & Time</label>
+                        <input type="datetime-local" th:field="*{endTime}" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Venue Name</label>
+                        <input type="text" th:field="*{venue}" class="form-control" placeholder="e.g. Moscone Convention Center" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">City</label>
+                        <input type="text" th:field="*{city}" class="form-control" placeholder="e.g. San Francisco" required>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label small fw-bold">Address / Street</label>
+                    <input type="text" th:field="*{address}" class="form-control" placeholder="e.g. 747 Howard St">
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <div class="form-check form-switch mt-4">
+                            <input class="form-check-input" type="checkbox" id="isOnlineCheck" th:field="*{isOnline}">
+                            <label class="form-check-label fw-bold small" for="isOnlineCheck">Is this a Virtual / Online Event?</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Online Streaming Link (if virtual)</label>
+                        <input type="url" th:field="*{onlineLink}" class="form-control" placeholder="https://zoom.us/j/...">
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Maximum Capacity (Attendees)</label>
+                        <input type="number" th:field="*{maxCapacity}" class="form-control" min="1" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Registration Deadline</label>
+                        <input type="datetime-local" th:field="*{registrationDeadline}" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center pt-4 border-top">
+                    <a th:href="@{/organizer/events}" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary-custom px-4 py-2">
+                        <i class="bi bi-check2-circle me-1"></i> <span th:text="${isEdit ? 'Save Changes' : 'Create & Proceed to Tickets'}">Submit</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

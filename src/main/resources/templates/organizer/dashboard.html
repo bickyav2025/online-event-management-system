@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Organizer Dashboard')}">
+</head>
+<body>
+
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="dashboard-wrapper">
+    <div th:replace="~{fragments/sidebar :: organizer-sidebar('dashboard')}"></div>
+
+    <main class="dashboard-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1">Organizer Performance Hub</h2>
+                <p class="text-muted mb-0">Track attendee signups, revenue velocity, and manage upcoming schedules.</p>
+            </div>
+            <a th:href="@{/organizer/events/new}" class="btn btn-primary-custom">
+                <i class="bi bi-plus-circle me-1"></i> Create New Event
+            </a>
+        </div>
+
+        <!-- Metric Stat Cards -->
+        <div class="row g-4 mb-4">
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div>
+                        <span class="text-muted small fw-bold text-uppercase">Total Events</span>
+                        <h3 class="fw-bold mt-1 mb-0" th:text="${totalEvents}">0</h3>
+                    </div>
+                    <div class="stat-icon indigo"><i class="bi bi-calendar3"></i></div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div>
+                        <span class="text-muted small fw-bold text-uppercase">Published Active</span>
+                        <h3 class="fw-bold mt-1 mb-0 text-primary" th:text="${publishedEvents}">0</h3>
+                    </div>
+                    <div class="stat-icon blue"><i class="bi bi-broadcast"></i></div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div>
+                        <span class="text-muted small fw-bold text-uppercase">Tickets Sold</span>
+                        <h3 class="fw-bold mt-1 mb-0 text-success" th:text="${ticketsSold}">0</h3>
+                    </div>
+                    <div class="stat-icon emerald"><i class="bi bi-ticket-perforated"></i></div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div>
+                        <span class="text-muted small fw-bold text-uppercase">Gross Revenue</span>
+                        <h3 class="fw-bold mt-1 mb-0 text-success" th:text="${'$' + (totalRevenue != null ? totalRevenue : 0)}">$0.00</h3>
+                    </div>
+                    <div class="stat-icon emerald"><i class="bi bi-currency-dollar"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart.js Trend & Quick Actions -->
+        <div class="row g-4 mb-4">
+            <div class="col-lg-8">
+                <div class="custom-card p-4">
+                    <h5 class="fw-bold mb-3">Daily Attendee Registrations</h5>
+                    <canvas id="organizerTrendsChart" height="130"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="custom-card p-4 h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <h5 class="fw-bold mb-3">Organizer Quick Tools</h5>
+                        <p class="text-muted small">Everything you need to deliver an exceptional attendee journey.</p>
+                        <div class="d-flex flex-column gap-2">
+                            <a th:href="@{/organizer/events/new}" class="btn btn-outline-custom text-start">
+                                <i class="bi bi-plus-lg me-2 text-primary"></i> Create Event
+                            </a>
+                            <a th:href="@{/organizer/attendees}" class="btn btn-outline-custom text-start">
+                                <i class="bi bi-download me-2 text-success"></i> Export Attendee Roster
+                            </a>
+                            <a th:href="@{/organizer/checkin}" class="btn btn-outline-custom text-start">
+                                <i class="bi bi-qr-code me-2 text-info"></i> Scan Ticket Codes
+                            </a>
+                            <a th:href="@{/organizer/announcements}" class="btn btn-outline-custom text-start">
+                                <i class="bi bi-megaphone me-2 text-warning"></i> Send Announcement
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Events Table -->
+        <div class="custom-card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">My Recent Events</h5>
+                <a th:href="@{/organizer/events}" class="text-primary small text-decoration-none fw-bold">Manage All &rarr;</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Venue</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="ev : ${recentEvents}">
+                            <td>
+                                <strong class="d-block" th:text="${ev.title}">Title</strong>
+                                <small class="text-muted" th:text="${ev.maxCapacity + ' max capacity'}">Capacity</small>
+                            </td>
+                            <td><span class="badge bg-primary-subtle text-primary" th:text="${ev.category.name}">Category</span></td>
+                            <td>
+                                <span class="badge"
+                                      th:classappend="${ev.status.name() == 'PUBLISHED' ? 'bg-success' : (ev.status.name() == 'PENDING_APPROVAL' ? 'bg-warning text-dark' : 'bg-secondary')}"
+                                      th:text="${ev.status}">STATUS</span>
+                            </td>
+                            <td class="text-muted small" th:text="${#temporals.format(ev.startTime, 'yyyy-MM-dd')}">Date</td>
+                            <td class="text-muted small" th:text="${ev.city}">City</td>
+                            <td class="text-end">
+                                <a th:href="@{/organizer/events/edit/{id}(id=${ev.id})}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                <a th:href="@{/organizer/tickets?eventId={id}(id=${ev.id})}" class="btn btn-sm btn-outline-primary">Tickets</a>
+                            </td>
+                        </tr>
+                        <tr th:if="${recentEvents.isEmpty()}">
+                            <td colspan="6" class="text-center py-4 text-muted">You have not created any events yet.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+    const orgTrendData = /*[[${registrationTrends}]]*/ [];
+    window.addEventListener('DOMContentLoaded', () => {
+        initOrganizerCharts(orgTrendData);
+    });
+/*]]>*/
+</script>
+
+</body>
+</html>

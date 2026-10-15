@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('About EventFlow')}">
+</head>
+<body>
+
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="container py-5">
+    <div class="row align-items-center g-5 mb-5">
+        <div class="col-lg-6">
+            <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-bold mb-3">Our Mission</span>
+            <h1 class="display-5 fw-bold mb-3">Empowering Creators, Connecting Communities</h1>
+            <p class="lead text-muted">EventFlow is built to make organizing and attending world-class events effortless, transparent, and engaging.</p>
+            <p class="text-muted">From intimate tech roundtables to massive multi-day festivals, our platform equips organizers with real-time analytics, instant door check-ins, and flexible ticket tiers, while offering attendees frictionless registration and verifiable digital passes.</p>
+        </div>
+        <div class="col-lg-6">
+            <img src="https://images.unsplash.com/photo-1511578314322-379afb476865?w=800&auto=format&fit=crop&q=80"
+                 alt="About EventFlow" class="img-fluid rounded-4 shadow-lg">
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

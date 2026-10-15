@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Discover Events. Create Memories.')}">
+</head>
+<body>
+
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<!-- Hero Section -->
+<header class="hero-section">
+    <div class="container text-center py-4">
+        <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-semibold mb-3">
+            <i class="bi bi-stars me-1"></i> The Next Generation Event Experience
+        </span>
+        <h1 class="hero-title mb-3">Discover Events. Create Memories.</h1>
+        <p class="lead text-muted mx-auto mb-4" style="max-width: 680px;">
+            Explore premium conferences, electrifying concerts, founder meetups, and exclusive workshops tailored to your passions.
+        </p>
+
+        <!-- Search Bar Container -->
+        <div class="card p-3 shadow-lg border-0 rounded-4 mx-auto" style="max-width: 880px; background: #ffffff;">
+            <form th:action="@{/explore}" method="get" class="row g-2 align-items-center">
+                <div class="col-md-4 text-start">
+                    <label class="form-label small fw-bold text-muted mb-1"><i class="bi bi-search me-1"></i> Keyword</label>
+                    <input type="text" name="keyword" class="form-control border-light-subtle rounded-3" placeholder="Search title or topics...">
+                </div>
+                <div class="col-md-3 text-start">
+                    <label class="form-label small fw-bold text-muted mb-1"><i class="bi bi-grid me-1"></i> Category</label>
+                    <select name="category" class="form-select border-light-subtle rounded-3">
+                        <option value="">All Categories</option>
+                        <option th:each="cat : ${categories}" th:value="${cat.slug}" th:text="${cat.name}">Category</option>
+                    </select>
+                </div>
+                <div class="col-md-3 text-start">
+                    <label class="form-label small fw-bold text-muted mb-1"><i class="bi bi-geo-alt me-1"></i> City</label>
+                    <input type="text" name="city" class="form-control border-light-subtle rounded-3" placeholder="e.g. San Francisco">
+                </div>
+                <div class="col-md-2 d-grid align-self-end">
+                    <button type="submit" class="btn btn-primary-custom justify-content-center py-2">
+                        Explore
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</header>
+
+<!-- Categories Section -->
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-end mb-4">
+            <div>
+                <span class="text-primary fw-bold text-uppercase small">Curated Collections</span>
+                <h2 class="fw-bold mt-1">Browse by Category</h2>
+            </div>
+            <a th:href="@{/explore}" class="btn btn-outline-custom btn-sm">View All <i class="bi bi-arrow-right ms-1"></i></a>
+        </div>
+
+        <div class="row g-4">
+            <div th:each="cat : ${categories}" class="col-6 col-md-4 col-lg-2">
+                <a th:href="@{/explore(category=${cat.slug})}" class="text-decoration-none">
+                    <div class="custom-card p-3 text-center h-100 d-flex flex-column align-items-center justify-content-center">
+                        <div class="stat-icon indigo mb-3">
+                            <i class="bi" th:classappend="${cat.icon != null ? cat.icon : 'bi-calendar-event'}"></i>
+                        </div>
+                        <h6 class="fw-bold mb-1 text-dark" th:text="${cat.name}">Category</h6>
+                        <small class="text-muted" th:text="${cat.description != null ? #strings.abbreviate(cat.description, 40) : 'Explore events'}"></small>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured & Upcoming Events Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-end mb-4">
+            <div>
+                <span class="text-primary fw-bold text-uppercase small">Handpicked & Trending</span>
+                <h2 class="fw-bold mt-1">Featured Upcoming Events</h2>
+            </div>
+            <a th:href="@{/explore}" class="btn btn-outline-custom btn-sm">Explore All Events</a>
+        </div>
+
+        <div class="row g-4">
+            <div th:each="event : ${featuredEvents}" class="col-md-6 col-lg-4">
+                <div class="custom-card h-100 d-flex flex-column">
+                    <div class="event-card-img-wrapper">
+                        <img th:src="${event.bannerUrl}" th:alt="${event.title}">
+                        <span class="event-category-badge" th:text="${event.category.name}">Category</span>
+                        <span class="event-price-badge" th:text="${event.isOnline ? 'Online Event' : event.city}">City</span>
+                    </div>
+                    <div class="p-4 d-flex flex-column flex-grow-1">
+                        <div class="d-flex align-items-center gap-2 text-muted small mb-2">
+                            <i class="bi bi-calendar3 text-primary"></i>
+                            <span th:text="${#temporals.format(event.startTime, 'MMM dd, yyyy · hh:mm a')}">Date</span>
+                        </div>
+                        <h5 class="fw-bold mb-2">
+                            <a th:href="@{/events/{slug}(slug=${event.slug})}" class="text-decoration-none text-dark" th:text="${event.title}">Event Title</a>
+                        </h5>
+                        <p class="text-muted small flex-grow-1" th:text="${event.shortDescription != null ? #strings.abbreviate(event.shortDescription, 110) : ''}">Short description</p>
+
+                        <div class="d-flex align-items-center justify-content-between pt-3 border-top mt-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-geo-alt-fill text-muted"></i>
+                                <span class="small text-muted" th:text="${event.venue}">Venue</span>
+                            </div>
+                            <a th:href="@{/events/{slug}(slug=${event.slug})}" class="btn btn-sm btn-primary-custom">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${featuredEvents.isEmpty()}" class="col-12 text-center py-5">
+                <i class="bi bi-calendar-x fs-1 text-muted mb-3 d-block"></i>
+                <h5>No events scheduled currently</h5>
+                <p class="text-muted">Stay tuned as organizers publish exciting new experiences soon.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Platform Statistics Banner -->
+<section class="py-5 bg-white border-top border-bottom">
+    <div class="container">
+        <div class="row g-4 text-center">
+            <div class="col-6 col-md-3">
+                <h2 class="fw-extrabold text-primary mb-1">50K+</h2>
+                <span class="text-muted fw-semibold">Event Attendees</span>
+            </div>
+            <div class="col-6 col-md-3">
+                <h2 class="fw-extrabold text-primary mb-1">1,200+</h2>
+                <span class="text-muted fw-semibold">Events Hosted</span>
+            </div>
+            <div class="col-6 col-md-3">
+                <h2 class="fw-extrabold text-primary mb-1">99.9%</h2>
+                <span class="text-muted fw-semibold">Uptime Reliability</span>
+            </div>
+            <div class="col-6 col-md-3">
+                <h2 class="fw-extrabold text-primary mb-1">4.9/5</h2>
+                <span class="text-muted fw-semibold">Organizer Satisfaction</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="text-primary fw-bold text-uppercase small">Community Voices</span>
+            <h2 class="fw-bold mt-1">Loved by Organizers and Attendees</h2>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="custom-card p-4 h-100">
+                    <div class="d-flex text-warning mb-3">
+                        <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                    </div>
+                    <p class="text-muted">"EventFlow made organizing our annual cloud summit completely frictionless. Instant QR check-ins and real-time revenue analytics saved our team hundreds of hours."</p>
+                    <div class="d-flex align-items-center gap-3 mt-3">
+                        <div class="stat-icon indigo"><i class="bi bi-person"></i></div>
+                        <div>
+                            <h6 class="fw-bold mb-0">Marcus Vance</h6>
+                            <small class="text-muted">VP Operations, TechForward</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="custom-card p-4 h-100">
+                    <div class="d-flex text-warning mb-3">
+                        <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                    </div>
+                    <p class="text-muted">"Booking tickets took literally 10 seconds. Having digital tickets with downloadable QR codes saved directly on my mobile dashboard made entrance a breeze."</p>
+                    <div class="d-flex align-items-center gap-3 mt-3">
+                        <div class="stat-icon blue"><i class="bi bi-person"></i></div>
+                        <div>
+                            <h6 class="fw-bold mb-0">Sophia Chen</h6>
+                            <small class="text-muted">Conference Attendee</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="custom-card p-4 h-100">
+                    <div class="d-flex text-warning mb-3">
+                        <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                    </div>
+                    <p class="text-muted">"The ticket tiering options from early-bird to VIP all-access passes gave us complete pricing flexibility. We sold out in 3 days!"</p>
+                    <div class="d-flex align-items-center gap-3 mt-3">
+                        <div class="stat-icon emerald"><i class="bi bi-person"></i></div>
+                        <div>
+                            <h6 class="fw-bold mb-0">David Sterling</h6>
+                            <small class="text-muted">Music Festival Producer</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action Banner -->
+<section class="py-5 bg-dark text-white text-center">
+    <div class="container py-4">
+        <h2 class="text-white fw-bold mb-3">Ready to Host Your Next Masterpiece?</h2>
+        <p class="text-white-50 mx-auto mb-4" style="max-width: 600px;">
+            Join thousands of event creators crafting experiences people will remember for a lifetime.
+        </p>
+        <div class="d-flex justify-content-center gap-3">
+            <a th:href="@{/register?role=ORGANIZER}" class="btn btn-primary-custom px-4 py-2">Start Organizing Free</a>
+            <a th:href="@{/explore}" class="btn btn-outline-light rounded-3 px-4 py-2">Explore Events</a>
+        </div>
+    </div>
+</section>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

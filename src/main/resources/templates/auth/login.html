@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Sign In')}">
+</head>
+<body class="bg-light">
+
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="container py-5 my-auto">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="custom-card p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <div class="brand-logo-icon mx-auto mb-3" style="width: 48px; height: 48px; font-size: 1.5rem;">
+                        <i class="bi bi-shield-lock-fill"></i>
+                    </div>
+                    <h3 class="fw-bold">Welcome Back</h3>
+                    <p class="text-muted small">Sign in to your EventFlow account to manage or attend events.</p>
+                </div>
+
+                <form th:action="@{/login}" method="post">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="bi bi-envelope text-muted"></i></span>
+                            <input type="email" id="loginEmail" name="username" class="form-control" placeholder="name@example.com" required autofocus>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <label class="form-label small fw-bold">Password</label>
+                            <a th:href="@{/forgot-password}" class="small text-primary text-decoration-none">Forgot password?</a>
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="bi bi-key text-muted"></i></span>
+                            <input type="password" id="loginPassword" name="password" class="form-control" placeholder="••••••••" required>
+                        </div>
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary-custom justify-content-center py-2 fs-6">
+                            Sign In
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Demo Login Fast-Fill Badges -->
+                <div class="mt-4 pt-3 border-top">
+                    <small class="text-uppercase fw-bold text-muted d-block text-center mb-2" style="font-size: 0.72rem;">Quick Demo Accounts</small>
+                    <div class="d-flex flex-wrap gap-2 justify-content-center">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="fillCreds('admin@eventflow.com', 'Admin@123')">
+                            Admin
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="fillCreds('organizer@eventflow.com', 'Organizer@123')">
+                            Organizer
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="fillCreds('attendee@eventflow.com', 'Attendee@123')">
+                            Attendee
+                        </button>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4 text-muted small">
+                    Don't have an account? <a th:href="@{/register}" class="fw-bold text-primary text-decoration-none">Create Account</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function fillCreds(email, pwd) {
+    document.getElementById('loginEmail').value = email;
+    document.getElementById('loginPassword').value = pwd;
+}
+</script>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head(${event.title})}">
+</head>
+<body>
+
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="container py-5">
+    <!-- Breadcrumb -->
+    <nav class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/}" class="text-decoration-none">Home</a></li>
+            <li class="breadcrumb-item"><a th:href="@{/explore}" class="text-decoration-none">Events</a></li>
+            <li class="breadcrumb-item active" th:text="${event.title}">Event Details</li>
+        </ol>
+    </nav>
+
+    <!-- Main Event Header Card -->
+    <div class="custom-card overflow-hidden mb-5">
+        <div style="height: 380px; position: relative;">
+            <img th:src="${event.bannerUrl}" th:alt="${event.title}" style="width: 100%; height: 100%; object-fit: cover;">
+            <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(15,23,42,0.1) 0%, rgba(15,23,42,0.85) 100%);"></div>
+            <div class="p-4 p-md-5 d-flex flex-column justify-content-end" style="position: absolute; inset: 0; color: #ffffff;">
+                <div class="d-flex gap-2 mb-3">
+                    <span class="badge bg-primary px-3 py-2 rounded-pill" th:text="${event.category.name}">Category</span>
+                    <span th:if="${event.isOnline}" class="badge bg-info px-3 py-2 rounded-pill"><i class="bi bi-camera-video me-1"></i> Virtual Event</span>
+                    <span th:unless="${event.isOnline}" class="badge bg-light text-dark px-3 py-2 rounded-pill"><i class="bi bi-geo-alt me-1"></i> In-Person</span>
+                </div>
+                <h1 class="display-6 fw-bold text-white mb-2" th:text="${event.title}">Event Title</h1>
+                <p class="lead text-white-50 mb-0" th:text="${event.shortDescription}">Short event summary</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Event Body & Ticket Sidebar -->
+    <div class="row g-5">
+        <!-- Left Content -->
+        <div class="col-lg-8">
+            <!-- Event Meta Highlights -->
+            <div class="custom-card p-4 mb-4">
+                <div class="row g-3">
+                    <div class="col-md-6 d-flex align-items-center gap-3">
+                        <div class="stat-icon indigo"><i class="bi bi-calendar-event"></i></div>
+                        <div>
+                            <span class="text-muted small d-block">Date and Time</span>
+                            <span class="fw-bold" th:text="${#temporals.format(event.startTime, 'EEEE, MMMM dd, yyyy')}">Date</span>
+                            <div class="small text-muted" th:text="${#temporals.format(event.startTime, 'hh:mm a') + ' - ' + #temporals.format(event.endTime, 'hh:mm a')}">Time</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 d-flex align-items-center gap-3">
+                        <div class="stat-icon blue"><i class="bi bi-geo-alt"></i></div>
+                        <div>
+                            <span class="text-muted small d-block">Location</span>
+                            <span class="fw-bold" th:text="${event.venue}">Venue</span>
+                            <div class="small text-muted" th:text="${event.address != null ? event.address + ', ' + event.city : event.city}">City</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- About This Event -->
+            <div class="custom-card p-4 p-md-5 mb-4">
+                <h3 class="fw-bold mb-4">About This Event</h3>
+                <div class="text-muted" style="line-height: 1.8; font-size: 1.05rem;" th:text="${event.fullDescription}">
+                    Full event description goes here.
+                </div>
+
+                <div th:if="${event.isOnline && event.onlineLink != null}" class="alert alert-info mt-4 d-flex align-items-center">
+                    <i class="bi bi-broadcast fs-4 me-3"></i>
+                    <div>
+                        <span class="fw-bold d-block">Online Meeting Link</span>
+                        <small class="text-muted">Registered attendees will receive direct video access credentials.</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Organizer Profile -->
+            <div class="custom-card p-4 d-flex align-items-center gap-4">
+                <div class="stat-icon indigo" style="width: 64px; height: 64px; font-size: 1.8rem;">
+                    <i class="bi bi-person-badge"></i>
+                </div>
+                <div>
+                    <span class="text-muted small text-uppercase fw-bold">Organized by</span>
+                    <h5 class="fw-bold mb-1" th:text="${event.organizer.fullName}">Organizer Name</h5>
+                    <div class="text-muted small" th:text="${'Contact: ' + event.organizer.email}">organizer@email.com</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Ticket Tiers & Booking Action -->
+        <div class="col-lg-4">
+            <div class="custom-card p-4 sticky-top" style="top: 100px;">
+                <h4 class="fw-bold mb-3">Select Tickets</h4>
+
+                <!-- Capacity & Deadline Alerts -->
+                <div class="d-flex justify-content-between text-muted small mb-4 pb-3 border-bottom">
+                    <span><i class="bi bi-people me-1"></i> Capacity: <strong th:text="${event.maxCapacity}">1000</strong></span>
+                    <span><i class="bi bi-clock me-1"></i> Closes: <strong th:text="${#temporals.format(event.registrationDeadline, 'MMM dd')}">Deadline</strong></span>
+                </div>
+
+                <!-- Ticket Tiers List -->
+                <div class="d-flex flex-column gap-3 mb-4">
+                    <div th:each="tier : ${ticketTypes}" class="p-3 rounded-3 border">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-bold" th:text="${tier.name}">General Admission</span>
+                            <span class="fw-extrabold text-primary" th:text="${tier.price == 0 ? 'FREE' : '$' + tier.price}">Price</span>
+                        </div>
+                        <p class="small text-muted mb-2" th:text="${tier.description}">Tier benefits and info</p>
+                        <div class="d-flex justify-content-between align-items-center small">
+                            <span class="text-muted" th:text="${tier.availableQuantity + ' remaining'}">10 remaining</span>
+                            <a th:if="${tier.availableQuantity > 0 && event.isRegistrationOpen()}"
+                               th:href="@{/checkout/{id}(id=${event.id}, ticketTypeId=${tier.id})}"
+                               class="btn btn-sm btn-outline-custom">
+                                Select
+                            </a>
+                            <span th:unless="${tier.availableQuantity > 0}" class="badge bg-secondary">Sold Out</span>
+                        </div>
+                    </div>
+
+                    <div th:if="${ticketTypes.isEmpty()}" class="alert alert-secondary text-center">
+                        <small>Tickets for this event will be released soon.</small>
+                    </div>
+                </div>
+
+                <!-- Main CTA Button -->
+                <div class="d-grid">
+                    <a th:if="${event.isRegistrationOpen() && !ticketTypes.isEmpty()}"
+                       th:href="@{/checkout/{id}(id=${event.id})}"
+                       class="btn btn-primary-custom justify-content-center py-3 fs-6">
+                        <i class="bi bi-ticket-perforated-fill me-2"></i> Register for Event
+                    </a>
+                    <button th:unless="${event.isRegistrationOpen()}" class="btn btn-secondary py-3 disabled">
+                        Registration Closed
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

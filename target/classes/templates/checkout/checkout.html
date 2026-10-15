@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Review & Checkout')}">
+</head>
+<body class="bg-light">
+
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="container py-5">
+    <div class="mb-4">
+        <h2 class="fw-bold">Complete Your Booking</h2>
+        <p class="text-muted">Review your ticket options, attendee details, and secure your registration.</p>
+    </div>
+
+    <form th:action="@{/checkout/process}" th:object="${bookingDto}" method="post">
+        <input type="hidden" th:field="*{eventId}">
+
+        <div class="row g-5">
+            <!-- Left: Attendee Details & Ticket Selection -->
+            <div class="col-lg-7">
+                <!-- Step 1: Ticket Tier Selection -->
+                <div class="custom-card p-4 mb-4">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-1-circle-fill text-primary me-2"></i> Select Ticket Tier</h5>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Ticket Type</label>
+                        <select id="checkoutTicketType" th:field="*{ticketTypeId}" class="form-select form-select-lg">
+                            <option th:each="tier : ${ticketTypes}"
+                                    th:value="${tier.id}"
+                                    th:text="${tier.name + ' — ' + (tier.price == 0 ? 'FREE' : '$' + tier.price) + ' (' + tier.availableQuantity + ' available)'}"
+                                    th:data-price="${tier.price}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Quantity (Tickets)</label>
+                        <input type="number" id="checkoutQuantity" th:field="*{quantity}" class="form-control form-control-lg" min="1" max="5" value="1" required>
+                        <small class="text-muted">Maximum 5 tickets per registration order.</small>
+                    </div>
+                </div>
+
+                <!-- Step 2: Primary Attendee Information -->
+                <div class="custom-card p-4 mb-4">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-2-circle-fill text-primary me-2"></i> Attendee Information</h5>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Full Name</label>
+                        <input type="text" th:field="*{attendeeName}" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Email Address</label>
+                        <input type="email" th:field="*{attendeeEmail}" class="form-control" required>
+                        <small class="text-muted">Digital tickets and confirmation QR code will be sent to this email.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Mobile Phone (Optional)</label>
+                        <input type="tel" th:field="*{attendeePhone}" class="form-control">
+                    </div>
+                </div>
+
+                <!-- Step 3: Payment Verification Gateway -->
+                <div class="custom-card p-4">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-3-circle-fill text-primary me-2"></i> Payment Method</h5>
+                    <div class="alert alert-info d-flex align-items-center mb-3">
+                        <i class="bi bi-shield-check fs-3 me-3 text-primary"></i>
+                        <div>
+                            <span class="fw-bold d-block">Integrated Sandbox Payment Environment</span>
+                            <small class="text-muted">Development Mode Active: Transactions are verified server-side without external card entry.</small>
+                        </div>
+                    </div>
+                    <div class="form-check p-3 border rounded-3 bg-white">
+                        <input class="form-check-input ms-0 me-2" type="radio" name="paymentMethod" id="payMock" value="SANDBOX_VERIFIED" checked>
+                        <label class="form-check-label fw-bold" for="payMock">
+                            <i class="bi bi-credit-card-2-front me-1 text-primary"></i> Instant Verified Checkout
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Order Summary Sidebar -->
+            <div class="col-lg-5">
+                <div class="custom-card p-4 sticky-top" style="top: 100px;">
+                    <h5 class="fw-bold mb-4">Order Summary</h5>
+
+                    <!-- Event Quick Snapshot -->
+                    <div class="d-flex gap-3 mb-4 pb-3 border-bottom">
+                        <img th:src="${event.bannerUrl}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 10px;">
+                        <div>
+                            <h6 class="fw-bold mb-1" th:text="${event.title}">Event Title</h6>
+                            <small class="text-muted d-block" th:text="${#temporals.format(event.startTime, 'MMM dd, yyyy · hh:mm a')}">Date</small>
+                            <small class="text-muted" th:text="${event.venue}">Venue</small>
+                        </div>
+                    </div>
+
+                    <!-- Price Calculations -->
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Ticket Subtotal:</span>
+                        <strong id="checkoutSubtotal">$0.00</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Booking Fee:</span>
+                        <span class="text-success fw-bold">FREE ($0.00)</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <span class="fs-5 fw-bold">Total Amount:</span>
+                        <span id="checkoutTotal" class="fs-4 fw-extrabold text-primary">$0.00</span>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary-custom justify-content-center py-3 fs-6">
+                            <i class="bi bi-lock-fill me-2"></i> Confirm & Complete Booking
+                        </button>
+                    </div>
+
+                    <p class="text-center text-muted small mt-3 mb-0">
+                        <i class="bi bi-check2-circle text-success me-1"></i> Instant digital ticket issuance with QR code.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

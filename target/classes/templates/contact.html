@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Contact Us')}">
+</head>
+<body>
+
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 text-center mb-5">
+            <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-bold mb-3">Get in Touch</span>
+            <h1 class="display-5 fw-bold mb-3">We'd Love to Hear From You</h1>
+            <p class="lead text-muted">Have questions about hosting an event or need help with a ticket? Our support team is ready to assist you.</p>
+        </div>
+    </div>
+
+    <div class="row g-5 justify-content-center">
+        <div class="col-lg-6">
+            <div class="custom-card p-4 p-md-5">
+                <form onsubmit="alert('Thank you! Your message has been received.'); return false;">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Your Name</label>
+                        <input type="text" class="form-control" required placeholder="Alex Morgan">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Email Address</label>
+                        <input type="email" class="form-control" required placeholder="alex@example.com">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Subject</label>
+                        <input type="text" class="form-control" required placeholder="Inquiry about Event Hosting">
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold">Message</label>
+                        <textarea class="form-control" rows="5" required placeholder="How can we help?"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary-custom w-100 py-2">Send Message</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="custom-card p-4 h-100 d-flex flex-column justify-content-around">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon indigo"><i class="bi bi-envelope"></i></div>
+                    <div>
+                        <strong class="d-block">Email Support</strong>
+                        <span class="text-muted small">support@eventflow.com</span>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon blue"><i class="bi bi-geo-alt"></i></div>
+                    <div>
+                        <strong class="d-block">Headquarters</strong>
+                        <span class="text-muted small">500 Howard Street, San Francisco, CA</span>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon emerald"><i class="bi bi-clock"></i></div>
+                    <div>
+                        <strong class="d-block">Operating Hours</strong>
+                        <span class="text-muted small">24/7 Monitoring & Support</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

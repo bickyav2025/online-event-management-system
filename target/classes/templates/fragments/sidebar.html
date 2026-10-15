@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- Admin Sidebar -->
+<div th:fragment="admin-sidebar(activeTab)" id="dashboardSidebar" class="sidebar-custom">
+    <div class="px-3 pb-3 mb-2 border-bottom">
+        <small class="text-uppercase fw-bold text-muted" style="letter-spacing: 0.08em; font-size: 0.72rem;">Admin Operations</small>
+    </div>
+    <a th:href="@{/admin/dashboard}" class="sidebar-link" th:classappend="${activeTab == 'dashboard' ? 'active' : ''}">
+        <i class="bi bi-speedometer2"></i> Dashboard Overview
+    </a>
+    <a th:href="@{/admin/users}" class="sidebar-link" th:classappend="${activeTab == 'users' ? 'active' : ''}">
+        <i class="bi bi-people"></i> User Management
+    </a>
+    <a th:href="@{/admin/events/pending}" class="sidebar-link" th:classappend="${activeTab == 'pending' ? 'active' : ''}">
+        <i class="bi bi-hourglass-split"></i> Pending Approvals
+    </a>
+    <a th:href="@{/admin/settings}" class="sidebar-link" th:classappend="${activeTab == 'settings' ? 'active' : ''}">
+        <i class="bi bi-sliders"></i> System Settings
+    </a>
+    <a th:href="@{/admin/activity}" class="sidebar-link" th:classappend="${activeTab == 'activity' ? 'active' : ''}">
+        <i class="bi bi-journal-text"></i> Activity Audit Log
+    </a>
+</div>
+
+<!-- Organizer Sidebar -->
+<div th:fragment="organizer-sidebar(activeTab)" id="dashboardSidebar" class="sidebar-custom">
+    <div class="px-3 pb-3 mb-2 border-bottom">
+        <small class="text-uppercase fw-bold text-muted" style="letter-spacing: 0.08em; font-size: 0.72rem;">Organizer Workspace</small>
+    </div>
+    <a th:href="@{/organizer/dashboard}" class="sidebar-link" th:classappend="${activeTab == 'dashboard' ? 'active' : ''}">
+        <i class="bi bi-graph-up-arrow"></i> Performance Hub
+    </a>
+    <a th:href="@{/organizer/events}" class="sidebar-link" th:classappend="${activeTab == 'events' ? 'active' : ''}">
+        <i class="bi bi-calendar-check"></i> My Events
+    </a>
+    <a th:href="@{/organizer/tickets}" class="sidebar-link" th:classappend="${activeTab == 'tickets' ? 'active' : ''}">
+        <i class="bi bi-tags"></i> Ticket Pricing & Inventory
+    </a>
+    <a th:href="@{/organizer/attendees}" class="sidebar-link" th:classappend="${activeTab == 'attendees' ? 'active' : ''}">
+        <i class="bi bi-person-lines-fill"></i> Attendees & Export
+    </a>
+    <a th:href="@{/organizer/checkin}" class="sidebar-link" th:classappend="${activeTab == 'checkin' ? 'active' : ''}">
+        <i class="bi bi-qr-code-scan"></i> Door Check-in Scanner
+    </a>
+    <a th:href="@{/organizer/announcements}" class="sidebar-link" th:classappend="${activeTab == 'announcements' ? 'active' : ''}">
+        <i class="bi bi-megaphone"></i> Broadcast Announcements
+    </a>
+</div>
+
+<!-- Attendee Sidebar -->
+<div th:fragment="attendee-sidebar(activeTab)" id="dashboardSidebar" class="sidebar-custom">
+    <div class="px-3 pb-3 mb-2 border-bottom">
+        <small class="text-uppercase fw-bold text-muted" style="letter-spacing: 0.08em; font-size: 0.72rem;">Attendee Hub</small>
+    </div>
+    <a th:href="@{/attendee/dashboard}" class="sidebar-link" th:classappend="${activeTab == 'dashboard' ? 'active' : ''}">
+        <i class="bi bi-grid-1x2"></i> My Dashboard
+    </a>
+    <a th:href="@{/explore}" class="sidebar-link">
+        <i class="bi bi-compass"></i> Discover Events
+    </a>
+    <a th:href="@{/attendee/registrations}" class="sidebar-link" th:classappend="${activeTab == 'registrations' ? 'active' : ''}">
+        <i class="bi bi-ticket-perforated"></i> My Registered Tickets
+    </a>
+    <a th:href="@{/attendee/notifications}" class="sidebar-link" th:classappend="${activeTab == 'notifications' ? 'active' : ''}">
+        <i class="bi bi-bell"></i> Notifications
+    </a>
+    <a th:href="@{/attendee/profile}" class="sidebar-link" th:classappend="${activeTab == 'profile' ? 'active' : ''}">
+        <i class="bi bi-person-gear"></i> Account Settings
+    </a>
+</div>
+
+</body>
+</html>

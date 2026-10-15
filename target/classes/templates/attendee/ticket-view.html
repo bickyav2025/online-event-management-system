@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Digital Event Pass')}">
+</head>
+<body class="bg-light">
+
+<div class="d-print-none">
+    <div th:replace="~{fragments/layout :: navbar}"></div>
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+</div>
+
+<div class="container py-5">
+    <div class="d-print-none d-flex justify-content-between align-items-center mb-4" style="max-width: 700px; margin: 0 auto;">
+        <a th:href="@{/attendee/registrations}" class="text-decoration-none text-muted">
+            <i class="bi bi-arrow-left me-1"></i> Back to Registrations
+        </a>
+        <button onclick="window.print()" class="btn btn-outline-dark btn-sm">
+            <i class="bi bi-printer me-1"></i> Print / Save as PDF
+        </button>
+    </div>
+
+    <!-- Ticket Pass Card Container -->
+    <div class="ticket-card mx-auto p-4 p-md-5" style="max-width: 700px;">
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+            <div class="d-flex align-items-center gap-2">
+                <div class="brand-logo-icon" style="width: 32px; height: 32px; font-size: 1rem;">
+                    <i class="bi bi-calendar2-event-fill"></i>
+                </div>
+                <h5 class="fw-bold mb-0">EventFlow Verified Pass</h5>
+            </div>
+            <span class="badge" th:classappend="${ticket.status.name() == 'VALID' ? 'bg-success' : (ticket.status.name() == 'USED' ? 'bg-secondary' : 'bg-danger')}"
+                  th:text="${ticket.status}">VALID</span>
+        </div>
+
+        <div class="row g-4 align-items-center">
+            <!-- Left Info -->
+            <div class="col-sm-7">
+                <span class="badge bg-primary-subtle text-primary mb-2" th:text="${ticket.ticketTypeName}">General Pass</span>
+                <h3 class="fw-bold mb-3" th:text="${event.title}">Event Title</h3>
+
+                <div class="mb-3">
+                    <span class="text-muted small d-block">Attendee Name</span>
+                    <strong class="fs-5" th:text="${ticket.attendeeName}">Alex Morgan</strong>
+                    <div class="small text-muted" th:text="${ticket.attendeeEmail}">alex@email.com</div>
+                </div>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <span class="text-muted small d-block">Date</span>
+                        <strong th:text="${#temporals.format(event.startTime, 'MMM dd, yyyy')}">Date</strong>
+                    </div>
+                    <div class="col-6">
+                        <span class="text-muted small d-block">Time</span>
+                        <strong th:text="${#temporals.format(event.startTime, 'hh:mm a')}">Time</strong>
+                    </div>
+                </div>
+
+                <div>
+                    <span class="text-muted small d-block">Venue</span>
+                    <span class="fw-semibold" th:text="${event.venue}">Moscone Center</span>
+                    <div class="small text-muted" th:text="${event.city}">San Francisco</div>
+                </div>
+            </div>
+
+            <!-- Right: QR Code & Reference Code -->
+            <div class="col-sm-5 text-center border-start ps-sm-4">
+                <div class="p-2 border rounded-3 bg-white d-inline-block shadow-sm mb-2">
+                    <img th:if="${ticket.qrCodePath != null}" th:src="${ticket.qrCodePath}" style="width: 170px; height: 170px;" alt="QR Code">
+                </div>
+                <div class="font-monospace small fw-bold text-muted" th:text="${ticket.ticketCode}">TKT-1234567890</div>
+                <small class="text-muted d-block mt-2">Present this code at event door check-in.</small>
+            </div>
+        </div>
+
+        <div class="mt-4 pt-3 border-top text-center text-muted small">
+            <span>Booking Ref: <strong th:text="${ticket.registration.registrationCode}">REG-1234</strong></span> &bull;
+            <span>Organized by: <strong th:text="${event.organizer.fullName}">Organizer</strong></span>
+        </div>
+    </div>
+</div>
+
+<div class="d-print-none">
+    <div th:replace="~{fragments/layout :: footer}"></div>
+    <div th:replace="~{fragments/layout :: scripts}"></div>
+</div>
+
+</body>
+</html>

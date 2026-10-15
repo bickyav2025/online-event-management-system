@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('System Settings')}">
+</head>
+<body>
+
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="dashboard-wrapper">
+    <div th:replace="~{fragments/sidebar :: admin-sidebar('settings')}"></div>
+
+    <main class="dashboard-content">
+        <div class="mb-4">
+            <h2 class="fw-bold mb-1">System & Platform Settings</h2>
+            <p class="text-muted mb-0">Configure platform global policies, billing currencies, and administrative contacts.</p>
+        </div>
+
+        <div class="custom-card p-4 p-md-5">
+            <form th:action="@{/admin/settings}" method="post">
+                <div class="row g-4">
+                    <div th:each="setting : ${settings}" class="col-md-6">
+                        <label class="form-label small fw-bold text-uppercase" style="letter-spacing: 0.05em;" th:text="${setting.description != null ? setting.description : setting.key}">Setting Label</label>
+                        <input type="text" th:name="${setting.key}" th:value="${setting.value}" class="form-control" required>
+                        <small class="text-muted" th:text="${'Category: ' + setting.category + ' | Key: ' + setting.key}">Meta</small>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-top text-end">
+                    <button type="submit" class="btn btn-primary-custom">
+                        <i class="bi bi-floppy me-1"></i> Save Platform Settings
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

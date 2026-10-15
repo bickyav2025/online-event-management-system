@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Profile Settings')}">
+</head>
+<body>
+
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="dashboard-wrapper">
+    <div th:replace="~{fragments/sidebar :: attendee-sidebar('profile')}"></div>
+
+    <main class="dashboard-content">
+        <div class="mb-4">
+            <h2 class="fw-bold mb-1">Account & Profile Settings</h2>
+            <p class="text-muted mb-0">Update your personal contact details, location, and account credentials.</p>
+        </div>
+
+        <div class="custom-card p-4 p-md-5" style="max-width: 700px;">
+            <form th:action="@{/attendee/profile}" method="post">
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Email Address</label>
+                    <input type="email" class="form-control" th:value="${user.email}" disabled>
+                    <small class="text-muted">Contact administrator to modify registered email address.</small>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Full Name</label>
+                    <input type="text" name="fullName" class="form-control" th:value="${user.fullName}" required>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Phone Number</label>
+                        <input type="tel" name="phone" class="form-control" th:value="${user.phone}" placeholder="+1 234 567 8900">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">City / Location</label>
+                        <input type="text" name="city" class="form-control" th:value="${user.city}" placeholder="San Francisco">
+                    </div>
+                </div>
+
+                <div class="mb-4 pt-3 border-top">
+                    <h5 class="fw-bold mb-2">Change Password</h5>
+                    <small class="text-muted d-block mb-3">Leave blank if you do not wish to change your current password.</small>
+                    <input type="password" name="newPassword" class="form-control" placeholder="Enter new password (at least 6 characters)">
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    <button type="submit" class="btn btn-primary-custom px-4 py-2">
+                        <i class="bi bi-floppy me-1"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>
